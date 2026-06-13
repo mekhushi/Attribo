@@ -1,0 +1,192 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+
+st.markdown("## Channel Blocking Sandbox")
+st.markdown("""
+Simulate what happens if one or more channels are shut down or completely blocked from the customer journey. 
+The Markov Chain transitions and absorption rates are re-calculated dynamically to show how customer paths 
+get disrupted and how many conversions are lost.
+""")
+
+def simulate_channel_blocking(df_trans, blocked_channels):
+    # Copy transition matrix
+    P = df_trans.copy()
+    
+    # If any channel is blocked, redirect its incoming transitions to (Null)
+    for ch in blocked_channels:
+        if ch in P.columns:
+            # Add the probability of going to 'ch' to '(Null)'
+            P['(Null)'] = P['(Null)'] + P[ch]
+            # Set the probability of going to 'ch' to 0.0
+            P[ch] = 0.0
+            
+    # The transient states are the index names of P
+    trans_states = list(P.index)
+    
+    # Q is the transient-to-transient submatrix
+    Q = P[trans_states].values
+    
+    # R is the transient-to-absorbing submatrix
+    R = P[['(Conversion)', '(Null)']].values
+    
+    # Fundamental Matrix N = (I - Q)^-1
+    I = np.identity(len(trans_states))
+    try:
+        N = np.linalg.inv(I - Q)
+        B = np.dot(N, R)
+        conv_prob = B[0, 0]
+    except Exception:
+        conv_prob = 0.0
+        
+    return conv_prob, P
+
+if "df_transition" in st.session_state and "channels" in st.session_state:
+    df_transition = st.session_state.df_transition
+    channels = st.session_state.channels
+    df_raw = st.session_state.df_raw
+    total_conversions = st.session_state.total_conversions
+    total_users = st.session_state.total_users
+
+    # Select box for blocking channels
+    selectable_channels = [c for c in channels]
+    blocked_channels = st.multiselect(
+        "Select channels to block/remove:",
+        options=selectable_channels,
+        default=[],
+        help="Select channels to simulate what happens if they are shut down."
+    )
+    
+    # Calculate simulation
+    base_conv_prob, _ = simulate_channel_blocking(df_transition, [])
+    sim_conv_prob, df_sim_transition = simulate_channel_blocking(df_transition, blocked_channels)
+    
+    # Show comparison metrics
+    sim_col1, sim_col2, sim_col3 = st.columns(3)
+    with sim_col1:
+        st.metric(
+            "Baseline Conversion Probability", 
+            f"{base_conv_prob * 100:.2f}%"
+        )
+    with sim_col2:
+        pct_change = ((sim_conv_prob - base_conv_prob) / base_conv_prob) * 100 if base_conv_prob > 0 else 0
+        st.metric(
+            "Simulated Conversion Probability", 
+            f"{sim_conv_prob * 100:.2f}%",
+            delta=f"{pct_change:.2f}%",
+            delta_color="normal" if pct_change == 0 else "inverse"
+        )
+    with sim_col3:
+        lost_conversions = total_conversions * (1 - (sim_conv_prob / base_conv_prob)) if base_conv_prob > 0 else 0
+        st.metric(
+            "Estimated Lost Conversions", 
+            f"{int(lost_conversions):,}" if len(blocked_channels) > 0 else "0"
+        )
+        
+    if len(blocked_channels) > 0:
+        st.markdown("<div class='sim-card'>", unsafe_allow_html=True)
+        st.write(f"**Simulation Note:** Blocking **{', '.join(blocked_channels)}** redirects all incoming customer steps to the (Null) exit state. This models the loss of top-of-funnel discovery or middle-funnel assistance.")
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+    st.markdown("---")
+    
+    col_m1, col_m2 = st.columns([1, 1])
+    
+    with col_m1:
+        st.markdown("### Transition Probability Heatmap (Simulated)")
+        st.markdown("""
+        This heatmap displays the probability of a user transitioning from **Row (State From)** to **Column (State To)**.
+        Blocked channels will show all transitions entering them redirected to Null.
+        """)
+        
+        heatmap_data = df_sim_transition.drop(index=['(Conversion)', '(Null)'], errors='ignore')
+        
+        fig_heatmap = px.imshow(
+            heatmap_data,
+            labels=dict(x="Transition To", y="Transition From", color="Probability"),
+            color_continuous_scale='Viridis',
+            template='plotly_dark'
+        )
+        fig_heatmap.update_layout(
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+        )
+        st.plotly_chart(fig_heatmap, use_container_width=True)
+
+    with col_m2:
+        st.markdown("### Channel Removal Effects")
+        st.markdown("""
+        The **Removal Effect** measures the decrease in overall conversion probability if a channel is completely 
+        blocked or removed from the customer lifecycle. (Calculated statically from raw baseline data)
+        """)
+        
+        df_removal = st.session_state.df_results[['Channel', 'Removal Effect']].sort_values(by='Removal Effect', ascending=True)
+        
+        fig_removal = px.bar(
+            df_removal,
+            x='Removal Effect',
+            y='Channel',
+            orientation='h',
+            color='Removal Effect',
+            color_continuous_scale='Blues',
+            template='plotly_dark'
+        )
+        fig_removal.update_layout(
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            xaxis_title="Removal Index (0 = No Impact, 1 = Complete Loss)"
+        )
+        st.plotly_chart(fig_removal, use_container_width=True)
+
+    # Sankey Chart (updates dynamically based on simulation)
+    st.markdown("### Customer Journey Flow Diagram (Sankey)")
+    st.markdown("Visual representation of transitions between channels from (Start) to either (Conversion) or (Null) exits, reflecting the current blocked/removed channels.")
+    
+    states = list(df_sim_transition.columns)
+    node_labels = [s.replace('(', '').replace(')', '') for s in states]
+    
+    sources = []
+    targets = []
+    values = []
+    
+    for r_idx, row_name in enumerate(df_sim_transition.index):
+        for c_idx, col_name in enumerate(df_sim_transition.columns):
+            prob = df_sim_transition.loc[row_name, col_name]
+            if prob > 0.02: # Only plot transitions above 2% probability
+                if row_name == '(Start)':
+                    vol = total_users * prob
+                else:
+                    vol = df_raw[df_raw['channel'] == row_name]['user_id'].nunique() * prob
+                
+                sources.append(states.index(row_name))
+                targets.append(states.index(col_name))
+                values.append(vol)
+                
+    fig_sankey = go.Figure(data=[go.Sankey(
+        node=dict(
+            pad=15,
+            thickness=20,
+            line=dict(color="black", width=0.5),
+            label=node_labels,
+            color="#6366f1"
+        ),
+        link=dict(
+            source=sources,
+            target=targets,
+            value=values,
+            color="rgba(99, 102, 241, 0.2)"
+        )
+    )])
+    fig_sankey.update_layout(
+        title_text="Multi-Touch Flow Visualizer",
+        font_size=12,
+        template='plotly_dark',
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        height=500
+    )
+    st.plotly_chart(fig_sankey, use_container_width=True)
+else:
+    st.warning("Data not loaded. Please wait or reload the home page.")
