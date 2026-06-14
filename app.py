@@ -26,6 +26,67 @@ st.markdown("""
         color: #f1f5f9;
     }
     
+    /* Premium Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #090d16 !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    /* Sidebar Navigation Group Headers */
+    [data-testid="stSidebarNavHeader"], 
+    div[data-testid="stSidebarNavItems"] > div > span {
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        color: #64748b !important; /* Slate 500 */
+        text-transform: uppercase !important;
+        letter-spacing: 0.1em !important;
+        padding: 18px 0 6px 12px !important;
+        display: block;
+    }
+    
+    /* Sidebar Links styling */
+    [data-testid="stSidebarNavItems"] a, 
+    div[data-testid="stSidebarNavItems"] ul li a {
+        border-radius: 8px !important;
+        margin: 4px 10px !important;
+        padding: 8px 14px !important;
+        color: #94a3b8 !important; /* Slate 400 */
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease-in-out !important;
+        text-decoration: none !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    /* Hover state for Sidebar links */
+    [data-testid="stSidebarNavItems"] a:hover, 
+    div[data-testid="stSidebarNavItems"] ul li a:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: #f8fafc !important; /* slate 50 */
+    }
+    
+    /* Active/Current page link state */
+    [data-testid="stSidebarNavItems"] a[aria-current="page"], 
+    div[data-testid="stSidebarNavItems"] ul li a[aria-current="page"] {
+        background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0.01) 100%) !important;
+        color: #38bdf8 !important; /* Sky 400 */
+        font-weight: 600 !important;
+        border-left: 3px solid #38bdf8 !important;
+        padding-left: 11px !important; /* adjust for border */
+        box-shadow: inset 2px 0 8px rgba(56, 189, 248, 0.05);
+    }
+    
+    /* Custom inputs / forms on Sidebar */
+    [data-testid="stSidebar"] .stNumberInput, 
+    [data-testid="stSidebar"] .stSlider {
+        background: rgba(255, 255, 255, 0.02);
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 12px;
+    }
+    
     .stMetric {
         background: rgba(30, 41, 59, 0.4);
         border-radius: 12px;
@@ -170,20 +231,20 @@ if st.session_state.data_loaded:
 
     st.markdown("---")
 
-    # Define Multi-page Navigation
+    # Define Multi-page Navigation with beautiful icons
     pages = {
         "Attribution Analytics": [
-            st.Page("views/overview.py", title="Attribution Comparisons"),
-            st.Page("views/flow.py", title="Markov Chain Flow"),
-            st.Page("views/path_explorer.py", title="Journey Path Explorer")
+            st.Page("views/overview.py", title="Attribution Comparisons", icon="📊"),
+            st.Page("views/flow.py", title="Markov Chain Flow", icon="🔄"),
+            st.Page("views/path_explorer.py", title="Journey Path Explorer", icon="🧭")
         ],
         "Planning & Optimization": [
-            st.Page("views/simulator.py", title="Channel Blocking Sandbox"),
-            st.Page("views/roi.py", title="Budget Reallocation & ROI"),
-            st.Page("views/data_uploader.py", title="Data Upload & Settings")
+            st.Page("views/simulator.py", title="Channel Blocking Sandbox", icon="🚧"),
+            st.Page("views/roi.py", title="Budget Reallocation & ROI", icon="💰"),
+            st.Page("views/data_uploader.py", title="Data Upload & Settings", icon="⚙️")
         ],
         "Information": [
-            st.Page("views/about.py", title="About & Methodology")
+            st.Page("views/about.py", title="About & Methodology", icon="📚")
         ]
     }
     
