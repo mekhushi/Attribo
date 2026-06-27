@@ -27,10 +27,8 @@ if "df_raw" in st.session_state and st.session_state.data_loaded:
     df_raw = st.session_state.df_raw
     channels = st.session_state.channels
     
-    # Process paths
     df_paths = get_user_paths(df_raw)
     
-    # 1. Path Statistics Summary
     total_paths = len(df_paths)
     unique_paths = df_paths['path_str'].nunique()
     converted_paths = df_paths[df_paths['converted'] == 1]
@@ -49,7 +47,6 @@ if "df_raw" in st.session_state and st.session_state.data_loaded:
         
     st.markdown("---")
     
-    # 2. Top Paths Leaderboard
     st.markdown("### Top Converting Journeys Leaderboard")
     st.markdown("The most common channel combinations that customers took and their respective conversion success rates.")
     
@@ -62,14 +59,12 @@ if "df_raw" in st.session_state and st.session_state.data_loaded:
     df_leaderboard['Conversion Success Rate'] = (df_leaderboard['Conversion Success Rate'] * 100).round(2)
     df_leaderboard = df_leaderboard.sort_values(by='Volume', ascending=False)
     
-    # Format conversion success rate as string
     df_lead_display = df_leaderboard.copy()
     df_lead_display['Conversion Success Rate'] = df_lead_display['Conversion Success Rate'].map(lambda x: f"{x:.2f}%")
     st.dataframe(df_lead_display.head(15), use_container_width=True, hide_index=True)
     
     st.markdown("---")
     
-    # 3. Path Search and Filters
     st.markdown("### Search & Filter Individual Paths")
     
     col_f1, col_f2, col_f3 = st.columns(3)
@@ -82,7 +77,6 @@ if "df_raw" in st.session_state and st.session_state.data_loaded:
             options=["All", "Converted Only", "Non-Converted Only"]
         )
     with col_f3:
-        # Multi-select channels
         filter_channels = st.multiselect(
             "Must Include Channels", 
             options=channels,
@@ -90,12 +84,10 @@ if "df_raw" in st.session_state and st.session_state.data_loaded:
             help="Show only paths that contain all of the selected channels."
         )
         
-    # Length Slider
     min_len = int(df_paths['length'].min())
     max_len = int(df_paths['length'].max())
     filter_length = st.slider("Path Touchpoints Range", min_value=min_len, max_value=max_len, value=(min_len, max_len))
     
-    # Apply Filters
     df_filtered = df_paths.copy()
     
     if search_user:
@@ -109,24 +101,20 @@ if "df_raw" in st.session_state and st.session_state.data_loaded:
     df_filtered = df_filtered[(df_filtered['length'] >= filter_length[0]) & (df_filtered['length'] <= filter_length[1])]
     
     if filter_channels:
-        # Path must contain all elements of filter_channels
         df_filtered = df_filtered[df_filtered['path'].apply(lambda p: all(c in p for c in filter_channels))]
         
     st.markdown(f"**Showing {len(df_filtered):,} matching customer journeys**")
     
-    # Render Paths
-    # Limit to 50 paths for page performance, with pagination or select limit
     limit_paths = 30
     df_sample = df_filtered.head(limit_paths)
     
-    # Define channel badge CSS style helper
     channel_colors = {
-        'Facebook': '#3b82f6',      # Blue
-        'Instagram': '#ec4899',     # Pink
-        'Google Ads': '#f59e0b',    # Orange/Amber
-        'Email': '#10b981',         # Green/Emerald
-        'Organic Search': '#6366f1',# Indigo
-        'Direct': '#6b7280',        # Slate Gray
+        'Facebook': '#3b82f6',
+        'Instagram': '#ec4899',
+        'Google Ads': '#f59e0b',
+        'Email': '#10b981',
+        'Organic Search': '#6366f1',
+        'Direct': '#6b7280',
     }
     
     for idx, row in df_sample.iterrows():
@@ -134,13 +122,11 @@ if "df_raw" in st.session_state and st.session_state.data_loaded:
         path_list = row['path']
         is_conv = row['converted']
         
-        # Build badges HTML
         badges_html = []
         for ch in path_list:
             bg_color = channel_colors.get(ch, '#1e293b')
             badges_html.append(f'<span style="background-color: {bg_color}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin: 0 4px; border: 1px solid rgba(255,255,255,0.1);">{ch}</span>')
             
-        # Add outcome badge
         if is_conv == 1:
             badges_html.append('<span style="background-color: #10b981; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; margin-left: 10px; border: 1px solid rgba(255,255,255,0.2);">Converted</span>')
         else:

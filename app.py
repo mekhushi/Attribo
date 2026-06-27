@@ -4,7 +4,6 @@ import numpy as np
 import os
 import sys
 
-# Set page configurations (MUST be the first Streamlit command)
 st.set_page_config(
     page_title="Marketing Attribution Suite",
     page_icon="🎯",
@@ -12,7 +11,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom premium styling via CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -26,31 +24,31 @@ st.markdown("""
         color: #f1f5f9;
     }
     
-    /* Premium Sidebar Styling */
+    
     [data-testid="stSidebar"] {
         background-color: #090d16 !important;
         border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
     
-    /* Sidebar Navigation Group Headers */
+    
     [data-testid="stSidebarNavHeader"], 
     div[data-testid="stSidebarNavItems"] > div > span {
         font-size: 0.75rem !important;
         font-weight: 700 !important;
-        color: #64748b !important; /* Slate 500 */
+        color: #64748b !important; 
         text-transform: uppercase !important;
         letter-spacing: 0.1em !important;
         padding: 18px 0 6px 12px !important;
         display: block;
     }
     
-    /* Sidebar Links styling */
+    
     [data-testid="stSidebarNavItems"] a, 
     div[data-testid="stSidebarNavItems"] ul li a {
         border-radius: 8px !important;
         margin: 4px 10px !important;
         padding: 8px 14px !important;
-        color: #94a3b8 !important; /* Slate 400 */
+        color: #94a3b8 !important; 
         font-size: 0.9rem !important;
         font-weight: 500 !important;
         transition: all 0.2s ease-in-out !important;
@@ -59,25 +57,25 @@ st.markdown("""
         align-items: center !important;
     }
     
-    /* Hover state for Sidebar links */
+    
     [data-testid="stSidebarNavItems"] a:hover, 
     div[data-testid="stSidebarNavItems"] ul li a:hover {
         background: rgba(255, 255, 255, 0.05) !important;
-        color: #f8fafc !important; /* slate 50 */
+        color: #f8fafc !important; 
     }
     
-    /* Active/Current page link state */
+    
     [data-testid="stSidebarNavItems"] a[aria-current="page"], 
     div[data-testid="stSidebarNavItems"] ul li a[aria-current="page"] {
         background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0.01) 100%) !important;
-        color: #38bdf8 !important; /* Sky 400 */
+        color: #38bdf8 !important; 
         font-weight: 600 !important;
         border-left: 3px solid #38bdf8 !important;
-        padding-left: 11px !important; /* adjust for border */
+        padding-left: 11px !important; 
         box-shadow: inset 2px 0 8px rgba(56, 189, 248, 0.05);
     }
     
-    /* Custom inputs / forms on Sidebar */
+    
     [data-testid="stSidebar"] .stNumberInput, 
     [data-testid="stSidebar"] .stSlider {
         background: rgba(255, 255, 255, 0.02);
@@ -132,7 +130,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Helper function to load data
 def load_data():
     if not os.path.exists("attribution_results.csv") or not os.path.exists("user_journeys.csv"):
         import subprocess
@@ -144,7 +141,6 @@ def load_data():
     df_raw = pd.read_csv("user_journeys.csv")
     return df_results, df_transition, df_raw
 
-# Initialize data in session state
 if "data_loaded" not in st.session_state or not st.session_state.data_loaded:
     try:
         df_results, df_transition, df_raw = load_data()
@@ -156,7 +152,6 @@ if "data_loaded" not in st.session_state or not st.session_state.data_loaded:
         st.session_state.data_loaded = False
         st.error(f"Error loading project data: {e}")
 
-# Sidebar configurations
 st.sidebar.markdown("<h2 style='color: #38bdf8;'>Controls & Settings</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
@@ -187,7 +182,7 @@ if st.session_state.data_loaded:
     channels = st.session_state.df_results['Channel'].tolist()
     st.session_state.channels = channels
     current_shares = {}
-    default_shares = [30, 25, 20, 10, 10, 5] # Default split summing to 100
+    default_shares = [30, 25, 20, 10, 10, 5]
 
     for idx, ch in enumerate(channels):
         current_shares[ch] = st.sidebar.slider(
@@ -199,12 +194,10 @@ if st.session_state.data_loaded:
         )
     st.session_state.current_shares = current_shares
 
-    # Validate split sums to 100
     total_shares = sum(current_shares.values())
     if total_shares != 100:
         st.sidebar.warning(f"Current budget shares sum to {total_shares}%. Adjust to equal exactly 100%.")
 
-# Main Title Header
 st.markdown("<h1 style='text-align: center; margin-bottom: 5px;'>Multi-Touch Marketing Attribution Suite</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 1.1rem; margin-bottom: 30px;'>Solving Last-Touch Bias with Markov Chain Probability Modeling</p>", unsafe_allow_html=True)
 
@@ -218,7 +211,6 @@ if st.session_state.data_loaded:
     st.session_state.total_users = total_users
     st.session_state.overall_conv_rate = overall_conv_rate
 
-    # KPI Summary Row
     kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
     with kpi_col1:
         st.metric("Total User Journeys Analyzed", f"{total_users:,}")
@@ -231,7 +223,6 @@ if st.session_state.data_loaded:
 
     st.markdown("---")
 
-    # Define Multi-page Navigation with professional Material Icons
     pages = {
         "Attribution Analytics": [
             st.Page("views/overview.py", title="Attribution Comparisons", icon=":material/bar_chart:"),

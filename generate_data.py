@@ -3,16 +3,12 @@ import pandas as pd
 import random
 from datetime import datetime, timedelta
 
-# Set random seed for reproducibility
 np.random.seed(42)
 random.seed(42)
 
 def generate_customer_journeys(num_users=5000):
     channels = ['Facebook', 'Instagram', 'Google Ads', 'Email', 'Organic Search', 'Direct']
     
-    # Transition behavior: 
-    # Facebook/Instagram often transition to Google Search or Direct (customers researching after seeing an ad)
-    # Email is sent to existing leads, often transitioning directly to purchase or organic search.
     next_channel_probs = {
         'Facebook': ['Google Ads', 'Direct', 'Organic Search', 'Facebook'],
         'Instagram': ['Google Ads', 'Direct', 'Organic Search', 'Instagram'],
@@ -22,8 +18,6 @@ def generate_customer_journeys(num_users=5000):
         'Direct': ['Direct']
     }
     
-    # Base conversion probabilities based on path length and channel mix
-    # Multi-touch paths convert higher
     data = []
     
     start_date = datetime(2026, 5, 1)
@@ -31,10 +25,8 @@ def generate_customer_journeys(num_users=5000):
     for i in range(num_users):
         user_id = f"usr_{100000 + i}"
         
-        # Decide path length (1 to 5 touchpoints)
         path_length = random.choices([1, 2, 3, 4, 5], weights=[0.4, 0.3, 0.15, 0.1, 0.05])[0]
         
-        # Select first channel
         first_channel = random.choices(
             channels, 
             weights=[0.3, 0.25, 0.15, 0.1, 0.12, 0.08]
@@ -43,33 +35,28 @@ def generate_customer_journeys(num_users=5000):
         path = [first_channel]
         for _ in range(path_length - 1):
             current = path[-1]
-            # Transition to a next channel based on the defined patterns
             choices = next_channel_probs[current]
             next_ch = random.choice(choices)
             path.append(next_ch)
             
-        # Determine conversion probability based on the path
-        # Multi-touch journeys with Facebook + Google Ads or Email have highest conversions
         has_social = 'Facebook' in path or 'Instagram' in path
         has_search = 'Google Ads' in path or 'Organic Search' in path
         has_email = 'Email' in path
         
         if len(path) == 1:
-            conv_prob = 0.015 # Single touchpoints convert poorly
+            conv_prob = 0.015
         else:
             if has_social and has_search:
-                conv_prob = 0.12 # Strong discovery + search intent
+                conv_prob = 0.12
             elif has_email and has_search:
-                conv_prob = 0.15 # High intent email list member
+                conv_prob = 0.15
             elif has_social and has_email:
                 conv_prob = 0.10
             else:
                 conv_prob = 0.05
                 
-        # Determine if they converted
         converted = np.random.binomial(1, conv_prob)
         
-        # Generate timestamps for the path
         current_time = start_date + timedelta(
             days=random.randint(0, 30),
             hours=random.randint(0, 23),
@@ -77,13 +64,11 @@ def generate_customer_journeys(num_users=5000):
         )
         
         for idx, channel in enumerate(path):
-            # Each subsequent touchpoint is separated by a few hours or days
             current_time += timedelta(
                 days=random.choices([0, 1, 2], weights=[0.6, 0.3, 0.1])[0],
                 hours=random.randint(1, 12)
             )
             
-            # Is this the final touchpoint and did they convert?
             is_last = (idx == len(path) - 1)
             converted_flag = converted if is_last else 0
             
@@ -95,7 +80,6 @@ def generate_customer_journeys(num_users=5000):
             })
             
     df = pd.DataFrame(data)
-    # Sort by user_id and timestamp to ensure chronological order
     df = df.sort_values(by=['user_id', 'timestamp']).reset_index(drop=True)
     return df
 

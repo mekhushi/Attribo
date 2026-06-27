@@ -12,27 +12,19 @@ get disrupted and how many conversions are lost.
 """)
 
 def simulate_channel_blocking(df_trans, blocked_channels):
-    # Copy transition matrix
     P = df_trans.copy()
     
-    # If any channel is blocked, redirect its incoming transitions to (Null)
     for ch in blocked_channels:
         if ch in P.columns:
-            # Add the probability of going to 'ch' to '(Null)'
             P['(Null)'] = P['(Null)'] + P[ch]
-            # Set the probability of going to 'ch' to 0.0
             P[ch] = 0.0
             
-    # The transient states are the index names of P
     trans_states = list(P.index)
     
-    # Q is the transient-to-transient submatrix
     Q = P[trans_states].values
     
-    # R is the transient-to-absorbing submatrix
     R = P[['(Conversion)', '(Null)']].values
     
-    # Fundamental Matrix N = (I - Q)^-1
     I = np.identity(len(trans_states))
     try:
         N = np.linalg.inv(I - Q)
@@ -50,7 +42,6 @@ if "df_transition" in st.session_state and "channels" in st.session_state:
     total_conversions = st.session_state.total_conversions
     total_users = st.session_state.total_users
 
-    # Select box for blocking channels
     selectable_channels = [c for c in channels]
     blocked_channels = st.multiselect(
         "Select channels to block/remove:",
@@ -59,11 +50,9 @@ if "df_transition" in st.session_state and "channels" in st.session_state:
         help="Select channels to simulate what happens if they are shut down."
     )
     
-    # Calculate simulation
     base_conv_prob, _ = simulate_channel_blocking(df_transition, [])
     sim_conv_prob, df_sim_transition = simulate_channel_blocking(df_transition, blocked_channels)
     
-    # Show comparison metrics
     sim_col1, sim_col2, sim_col3 = st.columns(3)
     with sim_col1:
         st.metric(
@@ -140,7 +129,6 @@ if "df_transition" in st.session_state and "channels" in st.session_state:
         )
         st.plotly_chart(fig_removal, use_container_width=True)
 
-    # Sankey Chart (updates dynamically based on simulation)
     st.markdown("### Customer Journey Flow Diagram (Sankey)")
     st.markdown("Visual representation of transitions between channels from (Start) to either (Conversion) or (Null) exits, reflecting the current blocked/removed channels.")
     
@@ -154,7 +142,7 @@ if "df_transition" in st.session_state and "channels" in st.session_state:
     for r_idx, row_name in enumerate(df_sim_transition.index):
         for c_idx, col_name in enumerate(df_sim_transition.columns):
             prob = df_sim_transition.loc[row_name, col_name]
-            if prob > 0.02: # Only plot transitions above 2% probability
+            if prob > 0.02:
                 if row_name == '(Start)':
                     vol = total_users * prob
                 else:

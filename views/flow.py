@@ -65,7 +65,6 @@ if "df_transition" in st.session_state and "df_results" in st.session_state:
         )
         st.plotly_chart(fig_removal, use_container_width=True)
 
-    # Sankey Chart
     st.markdown("---")
     st.markdown("### Customer Journey Flow Diagram (Sankey)")
     st.markdown("Visual representation of transitions between channels from (Start) to either (Conversion) or (Null) exits.")
@@ -80,7 +79,7 @@ if "df_transition" in st.session_state and "df_results" in st.session_state:
     for r_idx, row_name in enumerate(df_transition.index):
         for c_idx, col_name in enumerate(df_transition.columns):
             prob = df_transition.loc[row_name, col_name]
-            if prob > 0.02: # Only plot transitions above 2% probability
+            if prob > 0.02:
                 if row_name == '(Start)':
                     vol = total_users * prob
                 else:

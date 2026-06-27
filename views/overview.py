@@ -12,7 +12,6 @@ a probabilistic "Removal Effect" to capture true assist value.
 if "df_results" in st.session_state:
     df_results = st.session_state.df_results
 
-    # Melt df for plotting
     df_melted = df_results.melt(
         id_vars=['Channel'], 
         value_vars=['First Touch', 'Last Touch', 'Linear', 'Time Decay', 'Position-Based', 'Markov Attribution'],
@@ -38,18 +37,15 @@ if "df_results" in st.session_state:
     )
     st.plotly_chart(fig_compare, use_container_width=True)
 
-    # Comparative Table
     st.markdown("### Exact Model Distributions")
     df_table = df_results[['Channel', 'First Touch', 'Last Touch', 'Linear', 'Time Decay', 'Position-Based', 'Markov Attribution']].copy()
     for col in df_table.columns[1:]:
         df_table[col] = df_table[col].round(1)
     st.dataframe(df_table, use_container_width=True, hide_index=True)
 
-    # Strategic Insights Card
     st.markdown("<div class='highlight-card'>", unsafe_allow_html=True)
     st.markdown("### Strategic Analyst Insight")
     
-    # Calculate difference for Facebook
     fb_last = df_results[df_results['Channel'] == 'Facebook']['Last Touch'].values[0]
     fb_markov = df_results[df_results['Channel'] == 'Facebook']['Markov Attribution'].values[0]
     fb_diff = ((fb_markov - fb_last) / fb_last) * 100 if fb_last > 0 else 0

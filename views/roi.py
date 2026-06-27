@@ -14,13 +14,10 @@ if "df_results" in st.session_state and "total_budget" in st.session_state:
     average_order_value = st.session_state.average_order_value
     current_shares = st.session_state.current_shares
 
-    # Calculate allocations
     df_opt = df_results[['Channel', 'Markov Attribution']].copy()
     
-    # Calculate Markov budget weights (normalized)
     markov_weights = df_opt['Markov Attribution'] / df_opt['Markov Attribution'].sum()
     
-    # User defined current split
     current_budget_vals = []
     markov_budget_vals = []
     
@@ -35,7 +32,6 @@ if "df_results" in st.session_state and "total_budget" in st.session_state:
     df_opt['Markov Recommended ($)'] = markov_budget_vals
     df_opt['Variance ($)'] = df_opt['Markov Recommended ($)'] - df_opt['Current Allocation ($)']
     
-    # Format table
     df_opt_display = df_opt.copy()
     df_opt_display['Current Allocation ($)'] = df_opt_display['Current Allocation ($)'].map(lambda x: f"${x:,.2f}")
     df_opt_display['Markov Recommended ($)'] = df_opt_display['Markov Recommended ($)'].map(lambda x: f"${x:,.2f}")
@@ -48,7 +44,6 @@ if "df_results" in st.session_state and "total_budget" in st.session_state:
         hide_index=True
     )
     
-    # Allocation Comparison Plot
     df_opt_melted = df_opt.melt(
         id_vars=['Channel'],
         value_vars=['Current Allocation ($)', 'Markov Recommended ($)'],
@@ -74,14 +69,12 @@ if "df_results" in st.session_state and "total_budget" in st.session_state:
     
     st.markdown("---")
     
-    # 2. FINANCIAL ROAS & CAC ANALYSIS COMPARISON
     st.markdown("### Financial ROAS & CAC Comparison")
     st.markdown(f"""
     See how the profitability of each channel shifts when using **Markov Chain attribution** 
     instead of a standard **Last-Touch model**. Financials are calculated using a baseline Average Order Value of **${average_order_value:.2f}**.
     """)
     
-    # Create financial analysis table
     df_fin = df_results[['Channel', 'Last Touch', 'Markov Attribution']].copy()
     df_fin['Spend ($)'] = [total_budget * (current_shares.get(ch, 0) / 100) for ch in df_fin['Channel']]
     
@@ -102,7 +95,6 @@ if "df_results" in st.session_state and "total_budget" in st.session_state:
         lambda r: r['Markov Revenue ($)'] / r['Spend ($)'] if r['Spend ($)'] > 0 else 0, axis=1
     )
     
-    # Display table
     df_fin_display = df_fin.copy()
     df_fin_display['Spend ($)'] = df_fin_display['Spend ($)'].map(lambda x: f"${x:,.2f}")
     df_fin_display['Last Touch CAC ($)'] = df_fin_display['Last Touch CAC ($)'].map(lambda x: f"${x:,.2f}" if x > 0 else "N/A")
@@ -116,7 +108,6 @@ if "df_results" in st.session_state and "total_budget" in st.session_state:
         hide_index=True
     )
     
-    # Plot comparing ROAS
     df_roas_melted = df_fin.melt(
         id_vars=['Channel'],
         value_vars=['Last Touch ROAS', 'Markov ROAS'],
@@ -141,12 +132,11 @@ if "df_results" in st.session_state and "total_budget" in st.session_state:
     )
     st.plotly_chart(fig_roas, use_container_width=True)
 
-    # Business Case Summary / ROI modeling
     st.markdown("<div class='highlight-card'>", unsafe_allow_html=True)
     st.markdown("### Simulated Efficiency Gain")
     
     total_shift = df_opt[df_opt['Variance ($)'] > 0]['Variance ($)'].sum()
-    modeled_extra_conversions = (total_shift / 150) * 0.25 # Assume standard CAC of $150 and 25% optimization yield
+    modeled_extra_conversions = (total_shift / 150) * 0.25
     
     st.write(f"""
     By shifting **${total_shift:,.2f}** from overvalued channels (e.g., Direct, Google Ads) to assisting channels 

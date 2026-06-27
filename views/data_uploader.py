@@ -10,7 +10,6 @@ Upload your multi-touch marketing event log to recalculate Heuristic and Markov 
 Ensure your file contains the proper schema before uploading.
 """)
 
-# Define target columns
 REQUIRED_COLUMNS = ['user_id', 'timestamp', 'channel', 'converted']
 
 st.markdown("### CSV Schema Guidelines")
@@ -26,29 +25,23 @@ uploaded_file = st.file_uploader("Upload customer journeys CSV", type=['csv'])
 
 if uploaded_file is not None:
     try:
-        # Load header to check columns first (fast check)
         df_preview = pd.read_csv(uploaded_file, nrows=5)
         columns = [c.lower().strip() for c in df_preview.columns]
         
-        # Check columns
         missing_cols = [col for col in REQUIRED_COLUMNS if col not in columns]
         
         if len(missing_cols) > 0:
             st.error(f"Validation Failed: Missing required columns: {', '.join(missing_cols)}")
         else:
-            # Load full file
             uploaded_file.seek(0)
             df_full = pd.read_csv(uploaded_file)
             
-            # Re-key columns to match exactly (lowercase)
             df_full.columns = [c.lower().strip() for c in df_full.columns]
             
-            # Validate types
             df_full['converted'] = pd.to_numeric(df_full['converted'], errors='coerce')
             df_full = df_full.dropna(subset=['converted'])
             df_full['converted'] = df_full['converted'].astype(int)
             
-            # Validate converted values are binary
             invalid_conv = df_full[~df_full['converted'].isin([0, 1])]
             if len(invalid_conv) > 0:
                 st.error("Validation Failed: The 'converted' column must only contain 0 or 1 values.")
@@ -57,20 +50,15 @@ if uploaded_file is not None:
                 st.markdown("#### Preview of Uploaded Data")
                 st.dataframe(df_full.head(10), use_container_width=True)
                 
-                # Button to compile
                 if st.button("Compile Uploaded Data & Update Suite"):
                     with st.spinner("Writing dataset and re-calculating attribution models..."):
-                        # Save file as user_journeys.csv
                         df_full.to_csv("user_journeys.csv", index=False)
                         
-                        # Re-run calculations
                         res = subprocess.run([sys.executable, "attribution_model.py"], capture_output=True, text=True)
                         
                         if res.returncode == 0:
-                            # Clear streamlit cache
                             st.cache_data.clear()
                             
-                            # Reload session state variables
                             df_results = pd.read_csv("attribution_results.csv")
                             df_transition = pd.read_csv("transition_matrix.csv", index_col=0)
                             df_raw = pd.read_csv("user_journeys.csv")

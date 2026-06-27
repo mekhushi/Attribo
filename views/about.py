@@ -7,7 +7,6 @@ Instead of attributing 100% of conversion credit to the final touchpoint, this e
 chronological path of customer interactions to accurately capture top-of-funnel assist value.
 """)
 
-# Card for Multi-Touch Attribution Concept
 st.markdown("<div class='highlight-card'>", unsafe_allow_html=True)
 st.markdown("### The Business Problem")
 st.write("""
@@ -24,7 +23,6 @@ This project implements a probabilistic attribution engine to:
 """)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Explanation of Models
 st.markdown("### Attribution Models Explained")
 
 col1, col2 = st.columns(2)
@@ -47,7 +45,6 @@ with col2:
 
 st.markdown("---")
 
-# The Mathematical Modeling
 st.markdown("### Markov Chain Mathematics")
 st.markdown("""
 A customer's journey is modeled as a random walk through a directed graph where marketing channels are **transient states**, 
