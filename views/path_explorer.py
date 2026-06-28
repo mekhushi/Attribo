@@ -108,34 +108,13 @@ if "df_raw" in st.session_state and st.session_state.data_loaded:
     limit_paths = 30
     df_sample = df_filtered.head(limit_paths)
     
-    st.markdown("""
-    <style>
-        .journey-card {
-            background: rgba(15, 23, 42, 0.3) !important;
-            padding: 14px 18px !important;
-            border-radius: 10px !important;
-            margin-bottom: 8px !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            transition: all 0.2s ease !important;
-        }
-        .journey-card:hover {
-            border-color: rgba(139, 92, 246, 0.3) !important;
-            background: rgba(15, 23, 42, 0.55) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
     channel_colors = {
         'Facebook': '#3b82f6',
         'Instagram': '#ec4899',
         'Google Ads': '#f59e0b',
-        'Email': '#06b6d4',
+        'Email': '#10b981',
         'Organic Search': '#6366f1',
-        'Direct': '#8b5cf6',
+        'Direct': '#6b7280',
     }
     
     for idx, row in df_sample.iterrows():
@@ -145,16 +124,15 @@ if "df_raw" in st.session_state and st.session_state.data_loaded:
         
         badges_html = []
         for ch in path_list:
-            border_color = channel_colors.get(ch, '#94a3b8')
-            badges_html.append(f'<span style="background-color: rgba(255,255,255,0.02); color: {border_color}; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; margin: 0 4px; border: 1px solid {border_color};">{ch}</span>')
+            bg_color = channel_colors.get(ch, '#1e293b')
+            badges_html.append(f'<span style="background-color: {bg_color}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin: 0 4px; border: 1px solid rgba(255,255,255,0.1);">{ch}</span>')
             
         if is_conv == 1:
-            badges_html.append('<span style="background-color: rgba(16, 185, 129, 0.08); color: #10b981; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; margin-left: 10px; border: 1px solid rgba(16, 185, 129, 0.25);">Converted</span>')
+            badges_html.append('<span style="background-color: #10b981; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; margin-left: 10px; border: 1px solid rgba(255,255,255,0.2);">Converted</span>')
         else:
-            badges_html.append('<span style="background-color: rgba(239, 68, 68, 0.08); color: #ef4444; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; margin-left: 10px; border: 1px solid rgba(239, 68, 68, 0.25);">Null Exit</span>')
+            badges_html.append('<span style="background-color: #ef4444; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; margin-left: 10px; border: 1px solid rgba(255,255,255,0.2);">Null Exit</span>')
             
-        arrow_sep = " <span style='color: #4b5563; margin: 0 4px; font-weight: bold;'>➔</span> "
-        full_line_html = f'<div class="journey-card"><span style="font-weight: 600; color: #f3f4f6; font-size: 0.85rem;">{user}</span><div style="display: flex; align-items: center; flex-wrap: wrap;">{arrow_sep.join(badges_html)}</div></div>'
+        full_line_html = f'<div style="background-color: rgba(30, 41, 59, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between;"><span style="font-weight: 700; color: #94a3b8; font-size: 0.9rem;">{user}</span><div style="display: flex; align-items: center; flex-wrap: wrap;">{" ➔ ".join(badges_html)}</div></div>'
         
         st.markdown(full_line_html, unsafe_allow_html=True)
         

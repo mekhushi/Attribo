@@ -12,16 +12,14 @@ Ensure your file contains the proper schema before uploading.
 
 REQUIRED_COLUMNS = ['user_id', 'timestamp', 'channel', 'converted']
 
-st.markdown("<div class='highlight-card'>", unsafe_allow_html=True)
-st.markdown("<h3 style='margin-top: 0;'>CSV Schema Guidelines</h3>", unsafe_allow_html=True)
+st.markdown("### CSV Schema Guidelines")
 st.markdown("""
 Your CSV file must include the following column headers exactly:
-- **`user_id`**: Unique string identifying the customer (e.g. `usr_100000`).
-- **`timestamp`**: Date and time of the interaction formatted as `YYYY-MM-DD HH:MM:SS`.
-- **`channel`**: The marketing channel name (e.g., `Facebook`, `Email`, `Google Ads`).
-- **`converted`**: Integer (`1` if this final click resulted in a purchase/conversion, else `0`).
+- `user_id`: Unique string identifying the customer (e.g. `usr_100000`).
+- `timestamp`: Date and time of the interaction formatted as `YYYY-MM-DD HH:MM:SS`.
+- `channel`: The marketing channel name (e.g., `Facebook`, `Email`, `Google Ads`).
+- `converted`: Integer (`1` if this final click resulted in a purchase/conversion, else `0`).
 """)
-st.markdown("</div>", unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader("Upload customer journeys CSV", type=['csv'])
 
