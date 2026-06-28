@@ -57,13 +57,38 @@ if "df_results" in st.session_state and "total_budget" in st.session_state:
         y='Budget ($)',
         color='Allocation Strategy',
         barmode='group',
-        color_discrete_sequence=['#f43f5e', '#10b981'],
+        color_discrete_sequence=['#f43f5e', '#8b5cf6'],
         template='plotly_dark'
     )
     fig_opt.update_layout(
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        xaxis_title="Marketing Channel"
+        font=dict(family="Plus Jakarta Sans", color="#94a3b8"),
+        xaxis=dict(
+            title="Marketing Channel",
+            gridcolor='rgba(255, 255, 255, 0.03)',
+            showgrid=False
+        ),
+        yaxis=dict(
+            title="Budget ($)",
+            gridcolor='rgba(255, 255, 255, 0.03)',
+            showgrid=True
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            font=dict(size=11, color="#94a3b8")
+        ),
+        hoverlabel=dict(
+            bgcolor="#0b0f19",
+            bordercolor="rgba(255,255,255,0.08)",
+            font_size=12,
+            font_family="Plus Jakarta Sans"
+        ),
+        margin=dict(t=50, b=20, l=10, r=10)
     )
     st.plotly_chart(fig_opt, use_container_width=True)
     
@@ -121,14 +146,38 @@ if "df_results" in st.session_state and "total_budget" in st.session_state:
         y='ROAS',
         color='Attribution Model',
         barmode='group',
-        color_discrete_sequence=['#ef4444', '#10b981'],
+        color_discrete_sequence=['#f43f5e', '#10b981'],
         template='plotly_dark'
     )
     fig_roas.update_layout(
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        xaxis_title="Marketing Channel",
-        yaxis_title="Return on Ad Spend (ROAS)"
+        font=dict(family="Plus Jakarta Sans", color="#94a3b8"),
+        xaxis=dict(
+            title="Marketing Channel",
+            gridcolor='rgba(255, 255, 255, 0.03)',
+            showgrid=False
+        ),
+        yaxis=dict(
+            title="Return on Ad Spend (ROAS)",
+            gridcolor='rgba(255, 255, 255, 0.03)',
+            showgrid=True
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            font=dict(size=11, color="#94a3b8")
+        ),
+        hoverlabel=dict(
+            bgcolor="#0b0f19",
+            bordercolor="rgba(255,255,255,0.08)",
+            font_size=12,
+            font_family="Plus Jakarta Sans"
+        ),
+        margin=dict(t=50, b=20, l=10, r=10)
     )
     st.plotly_chart(fig_roas, use_container_width=True)
 

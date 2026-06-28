@@ -2,7 +2,7 @@ import streamlit as st
 
 st.markdown("## About & Methodology")
 st.markdown("""
-This Multi-Touch Marketing Attribution Suite is designed to solve the "last-click bias" in digital marketing analytics. 
+**Attribo** is an advanced Multi-Touch Marketing Attribution Engine designed to solve the "last-click bias" in digital marketing analytics. 
 Instead of attributing 100% of conversion credit to the final touchpoint, this engine models the complete, 
 chronological path of customer interactions to accurately capture top-of-funnel assist value.
 """)
@@ -84,7 +84,7 @@ with math_col2:
     """)
 
 st.markdown("---")
-st.markdown("### How to Navigate the Suite")
+st.markdown("### How to Navigate Attribo")
 st.markdown("""
 - **Overview & Comparisons**: Review overall campaign performance, and compare conversion allocation across all six models side-by-side.
 - **Markov Chain Flow**: View the raw transition matrix heatmap, and look at the path volumes in the Sankey flow chart.

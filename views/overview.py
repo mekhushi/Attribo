@@ -25,15 +25,38 @@ if "df_results" in st.session_state:
         y='Attributed Conversions',
         color='Attribution Model',
         barmode='group',
-        color_discrete_sequence=['#818cf8', '#f472b6', '#60a5fa', '#fb7185', '#fbbf24', '#34d399'],
+        color_discrete_sequence=['#3b82f6', '#f43f5e', '#64748b', '#06b6d4', '#f59e0b', '#8b5cf6'],
         template='plotly_dark'
     )
     fig_compare.update_layout(
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        xaxis_title="Marketing Channel",
-        yaxis_title="Allocated Conversions",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        font=dict(family="Plus Jakarta Sans", color="#94a3b8"),
+        xaxis=dict(
+            title="Marketing Channel",
+            gridcolor='rgba(255, 255, 255, 0.03)',
+            showgrid=False
+        ),
+        yaxis=dict(
+            title="Allocated Conversions",
+            gridcolor='rgba(255, 255, 255, 0.03)',
+            showgrid=True
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            font=dict(size=11, color="#94a3b8")
+        ),
+        hoverlabel=dict(
+            bgcolor="#0b0f19",
+            bordercolor="rgba(255,255,255,0.08)",
+            font_size=12,
+            font_family="Plus Jakarta Sans"
+        ),
+        margin=dict(t=50, b=20, l=10, r=10)
     )
     st.plotly_chart(fig_compare, use_container_width=True)
 
@@ -44,7 +67,7 @@ if "df_results" in st.session_state:
     st.dataframe(df_table, use_container_width=True, hide_index=True)
 
     st.markdown("<div class='highlight-card'>", unsafe_allow_html=True)
-    st.markdown("### Strategic Analyst Insight")
+    st.markdown("<h3 style='margin-top:0;'>Strategic Analyst Insight</h3>", unsafe_allow_html=True)
     
     fb_last = df_results[df_results['Channel'] == 'Facebook']['Last Touch'].values[0]
     fb_markov = df_results[df_results['Channel'] == 'Facebook']['Markov Attribution'].values[0]
@@ -58,3 +81,4 @@ if "df_results" in st.session_state:
     st.markdown("</div>", unsafe_allow_html=True)
 else:
     st.warning("Data not loaded. Please wait or reload the home page.")
+

@@ -95,12 +95,26 @@ if "df_transition" in st.session_state and "channels" in st.session_state:
         fig_heatmap = px.imshow(
             heatmap_data,
             labels=dict(x="Transition To", y="Transition From", color="Probability"),
-            color_continuous_scale='Viridis',
+            color_continuous_scale=[(0.00, '#030712'), (0.15, '#1e1b4b'), (0.55, '#6366f1'), (1.00, '#c084fc')],
             template='plotly_dark'
         )
         fig_heatmap.update_layout(
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
+            font=dict(family="Plus Jakarta Sans", color="#94a3b8"),
+            margin=dict(t=30, b=30, l=10, r=10),
+            coloraxis_colorbar=dict(
+                title="Probability",
+                thickness=15,
+                len=0.8,
+                tickfont=dict(color="#94a3b8")
+            ),
+            hoverlabel=dict(
+                bgcolor="#0b0f19",
+                bordercolor="rgba(255,255,255,0.08)",
+                font_size=12,
+                font_family="Plus Jakarta Sans"
+            )
         )
         st.plotly_chart(fig_heatmap, use_container_width=True)
 
@@ -119,13 +133,30 @@ if "df_transition" in st.session_state and "channels" in st.session_state:
             y='Channel',
             orientation='h',
             color='Removal Effect',
-            color_continuous_scale='Blues',
+            color_continuous_scale=[(0.0, '#1e1b4b'), (1.0, '#8b5cf6')],
             template='plotly_dark'
         )
         fig_removal.update_layout(
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            xaxis_title="Removal Index (0 = No Impact, 1 = Complete Loss)"
+            font=dict(family="Plus Jakarta Sans", color="#94a3b8"),
+            xaxis=dict(
+                title="Removal Index (0 = No Impact, 1 = Complete Loss)",
+                gridcolor='rgba(255, 255, 255, 0.03)',
+                showgrid=True
+            ),
+            yaxis=dict(
+                title="",
+                showgrid=False
+            ),
+            hoverlabel=dict(
+                bgcolor="#0b0f19",
+                bordercolor="rgba(255,255,255,0.08)",
+                font_size=12,
+                font_family="Plus Jakarta Sans"
+            ),
+            margin=dict(t=30, b=30, l=10, r=10),
+            coloraxis_showscale=False
         )
         st.plotly_chart(fig_removal, use_container_width=True)
 
@@ -134,6 +165,20 @@ if "df_transition" in st.session_state and "channels" in st.session_state:
     
     states = list(df_sim_transition.columns)
     node_labels = [s.replace('(', '').replace(')', '') for s in states]
+    
+    channel_colors_map = {
+        'Start': '#64748b',
+        'Conversion': '#10b981',
+        'Null': '#f43f5e',
+        'Facebook': '#3b82f6',
+        'Instagram': '#ec4899',
+        'Google Ads': '#f59e0b',
+        'Email': '#06b6d4',
+        'Organic Search': '#6366f1',
+        'Direct': '#8b5cf6'
+    }
+    
+    node_colors = [channel_colors_map.get(label, '#8b5cf6') for label in node_labels]
     
     sources = []
     targets = []
@@ -154,26 +199,27 @@ if "df_transition" in st.session_state and "channels" in st.session_state:
                 
     fig_sankey = go.Figure(data=[go.Sankey(
         node=dict(
-            pad=15,
+            pad=18,
             thickness=20,
-            line=dict(color="black", width=0.5),
+            line=dict(color="rgba(0,0,0,0.3)", width=1),
             label=node_labels,
-            color="#6366f1"
+            color=node_colors
         ),
         link=dict(
             source=sources,
             target=targets,
             value=values,
-            color="rgba(99, 102, 241, 0.2)"
+            color="rgba(139, 92, 246, 0.15)"
         )
     )])
     fig_sankey.update_layout(
         title_text="Multi-Touch Flow Visualizer",
-        font_size=12,
+        font=dict(family="Plus Jakarta Sans", size=12, color="#94a3b8"),
         template='plotly_dark',
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        height=500
+        height=520,
+        margin=dict(t=50, b=20, l=10, r=10)
     )
     st.plotly_chart(fig_sankey, use_container_width=True)
 else:
