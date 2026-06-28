@@ -1,4 +1,4 @@
-# Multi-Touch Marketing Attribution Suite
+# Atteibo
 
 An advanced, corporate-ready marketing analytics platform that solves the "last-click bias" in digital marketing. Instead of giving 100% credit to the final channel a customer clicked before purchasing, this engine reconstructs complete customer journeys and uses absorbing **Markov Chains** to calculate transition probabilities between channels and determine the exact influence (Removal Effect) of each marketing touchpoint.
 
