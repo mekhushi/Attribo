@@ -6,7 +6,6 @@ import sys
 
 st.set_page_config(
     page_title="Attribo - Marketing Attribution Engine",
-    page_icon="🎯",
     layout="wide",
     initial_sidebar_state="expanded"
 )
